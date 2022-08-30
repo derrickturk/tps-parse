@@ -15,6 +15,9 @@
  */
 package nl.cad.tpsparse.tps.record;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import nl.cad.tpsparse.bin.RandomAccess;
 
 public class FieldDefinitionRecord {
@@ -33,6 +36,8 @@ public class FieldDefinitionRecord {
     private int bcdDigitsAfterDecimalPoint;
     private int bcdLengthOfElement;
 
+    private ArrayList<FieldDefinitionRecord> groupFields;
+
     public FieldDefinitionRecord(RandomAccess rx) {
         this.fieldType = rx.leByte();
         this.offset = rx.leShort();
@@ -41,6 +46,7 @@ public class FieldDefinitionRecord {
         this.length = rx.leShort();
         this.flags = rx.leShort();
         this.index = rx.leShort();
+        this.groupFields = null;
         //
         switch (fieldType) {
         case 0x0a:
@@ -55,6 +61,9 @@ public class FieldDefinitionRecord {
             if (stringMask.length() == 0) {
                 rx.leByte();
             }
+            break;
+        case 0x16:
+            groupFields = new ArrayList<FieldDefinitionRecord>();
             break;
         }
     }
@@ -77,6 +86,10 @@ public class FieldDefinitionRecord {
 
     public int getNrOfElements() {
         return elements;
+    }
+
+    public List<FieldDefinitionRecord> getContainedFields() {
+        return groupFields;
     }
 
     public boolean isArray() {
@@ -175,4 +188,25 @@ public class FieldDefinitionRecord {
         return ((group.getOffset() <= offset) && ((group.getOffset() + group.getLength()) >= (offset + length)));
     }
 
+    public static ArrayList<FieldDefinitionRecord> ParseFieldDefinitions(RandomAccess rx, int nrOfFields) {
+        ArrayList<FieldDefinitionRecord> records = new ArrayList<>();
+        FieldDefinitionRecord lastGroup = null;
+        for (int t = 0; t < nrOfFields; t++) {
+            FieldDefinitionRecord r = new FieldDefinitionRecord(rx);
+            if (r.isGroup()) {
+                lastGroup = r;
+                records.add(r);
+            } else if (lastGroup != null) {
+                if (r.isInGroup(lastGroup)) {
+                    lastGroup.groupFields.add(r);
+                } else {
+                    lastGroup = null;
+                    records.add(r);
+                }
+            } else {
+                records.add(r);
+            }
+        }
+        return records;
+    }
 }

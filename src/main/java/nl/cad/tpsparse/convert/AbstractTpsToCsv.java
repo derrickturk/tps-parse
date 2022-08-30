@@ -98,13 +98,32 @@ public abstract class AbstractTpsToCsv {
     protected void buildCsvHeaders() {
         csv.addColumn("Rec No");
         for (FieldDefinitionRecord field : table.getFields()) {
-            String csvName = toCsvName(getFieldPrefix(table.getFields(), field) + field.getFieldNameNoTable());
             if (field.isArray()) {
                 for (int idx = 0; idx < field.getNrOfElements(); idx++) {
-                    csv.addColumn(csvName + "[" + idx + "]", field.isGroup());
+                    if (field.isGroup()) {
+                        List<FieldDefinitionRecord> subFields = field.getContainedFields();
+                        String csvName = toCsvName(field.getFieldNameNoTable());
+                        for (int sidx = 0; sidx < subFields.size(); sidx++) {
+                            FieldDefinitionRecord subField = subFields.get(sidx);
+                            csv.addColumn(csvName + "[" + idx + "]." + subField.getFieldNameNoTable());
+                        }
+                    } else {
+                        String csvName = toCsvName(getFieldPrefix(table.getFields(), field) + field.getFieldNameNoTable());
+                        csv.addColumn(csvName + "[" + idx + "]");
+                    }
+                }
+            } else if (field.isGroup()) {
+                List<FieldDefinitionRecord> subFields = field.getContainedFields();
+                String csvName = toCsvName(field.getFieldNameNoTable());
+                for (int sidx = 0; sidx < subFields.size(); sidx++) {
+                    FieldDefinitionRecord subField = subFields.get(sidx);
+                    String subCsvName = toCsvName(
+                            getFieldPrefix(table.getFields(), subField) + subField.getFieldNameNoTable());
+                    csv.addColumn(subCsvName);
                 }
             } else {
-                csv.addColumn(csvName, field.isGroup());
+                String csvName = toCsvName(getFieldPrefix(table.getFields(), field) + field.getFieldNameNoTable());
+                csv.addColumn(csvName);
             }
         }
         for (MemoDefinitionRecord memo : table.getMemos()) {
@@ -188,10 +207,24 @@ public abstract class AbstractTpsToCsv {
             if (field.isArray()) {
                 Object[] arr = (Object[]) value;
                 for (int idx = 0; idx < field.getNrOfElements(); idx++) {
-                    csv.addCell(arr[idx]);
+                    if (field.isGroup()) {
+                        List<Object> subRecords = (List<Object>)arr[idx];
+                        for (int sidx = 0; sidx < subRecords.size(); sidx++) {
+                            csv.addCell(subRecords.get(sidx));
+                        }
+                    } else {
+                        csv.addCell(arr[idx]);
+                    }
                 }
             } else {
-                csv.addCell(value);
+                if (field.isGroup()) {
+                    List<Object> subRecords = (List<Object>)value;
+                    for (int sidx = 0; sidx < subRecords.size(); sidx++) {
+                        csv.addCell(subRecords.get(sidx));
+                    }
+                } else {
+                    csv.addCell(value);
+                }
             }
         }
         for (int t = 0; t < table.getMemos().size(); t++) {

@@ -46,9 +46,7 @@ public class TableDefinitionRecord {
         this.stringEncoding = stringEncoding;
         //
         try {
-            for (int t = 0; t < nrOfFields; t++) {
-                fields.add(new FieldDefinitionRecord(rx));
-            }
+            fields = FieldDefinitionRecord.ParseFieldDefinitions(rx, nrOfFields);
             for (int t = 0; t < nrOfMemos; t++) {
                 memos.add(new MemoDefinitionRecord(rx));
             }
@@ -111,19 +109,26 @@ public class TableDefinitionRecord {
     }
 
     public Object parseField(int type, int ofs, int len, FieldDefinitionRecord field, RandomAccess rx) {
+        return parseField(type, ofs, len, field, rx, false);
+    }
+
+    public Object parseField(int type, int ofs, int len, FieldDefinitionRecord field, RandomAccess rx, boolean skipLengthCheck) {
         rx.jumpAbs(ofs);
         switch (type) {
         case 1:
             // byte
-            assertEqual(1, len);
+            if (!skipLengthCheck)
+                assertEqual(1, len);
             return rx.leByte();
         case 2:
             // short
-            assertEqual(2, len);
+            if (!skipLengthCheck)
+                assertEqual(2, len);
             return rx.leShort();
         case 3:
             // unsigned short
-            assertEqual(2, len);
+            if (!skipLengthCheck)
+                assertEqual(2, len);
             return rx.leUShort();
         case 4:
             // Date, mask encoded.
@@ -150,19 +155,23 @@ public class TableDefinitionRecord {
             return new LocalTime(hours, mins, 0, 0);
         case 6:
             // Long
-            assertEqual(4, len);
+            if (!skipLengthCheck)
+                assertEqual(4, len);
             return rx.leLong();
         case 7:
             // Unsigned Long
-            assertEqual(4, len);
+            if (!skipLengthCheck)
+                assertEqual(4, len);
             return rx.leULong();
         case 8:
             // Float
-            assertEqual(4, len);
+            if (!skipLengthCheck)
+                assertEqual(4, len);
             return rx.leFloat();
         case 9:
             // Double
-            assertEqual(8, len);
+            if (!skipLengthCheck)
+                assertEqual(8, len);
             return rx.leDouble();
         case 0x0A:
             // BCD encoded.
@@ -176,7 +185,14 @@ public class TableDefinitionRecord {
             return rx.pascalString(stringEncoding);
         case 0x16:
             // Group (an overlay on top of existing data, can be anything).
-            return rx.readBytes(len);
+            ArrayList<Object> data = new ArrayList<>();
+            List<FieldDefinitionRecord> fields = field.getContainedFields();
+            for (int i = 0; i < fields.size(); i++) {
+                FieldDefinitionRecord subfield = fields.get(i);
+                data.add(parseField(subfield.getFieldType(), ofs, subfield.getLength(), subfield, rx, true));
+                ofs += subfield.getLength();
+            }
+            return data;
         default:
             throw new IllegalArgumentException("Unsupported type " + type + " (" + len + ")");
         }
