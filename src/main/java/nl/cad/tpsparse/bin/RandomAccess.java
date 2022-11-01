@@ -150,11 +150,7 @@ public class RandomAccess {
     public int leShort() {
         checkSpace(2);
         int ref = baseOfs + ofs;
-        int out = (data[ref] & 0xFF) | ((data[ref + 1] & 0xFF) << 8);
-        // sign-extend negative numbers
-        if ((out & 0x8000) != 0) {
-            out |= 0xffff0000;
-        }
+        int out = (data[ref] & 0xFF) | (data[ref + 1] << 8);
         ofs += 2;
         return out;
     }
