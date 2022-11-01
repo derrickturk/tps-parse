@@ -107,7 +107,7 @@ public class TpsBlock {
         rx.pushPosition();
         try {
             rx.leLong();
-            pageSize = rx.leShort();
+            pageSize = rx.leUShort();
         } finally {
             rx.popPosition();
         }

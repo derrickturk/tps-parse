@@ -24,7 +24,7 @@ public class TableDefinitionHeader extends AbstractHeader {
     public TableDefinitionHeader(RandomAccess rx) {
         super(rx);
         isType(0xFA);
-        this.block = rx.leShort();
+        this.block = rx.leUShort();
     }
 
     public String toString() {

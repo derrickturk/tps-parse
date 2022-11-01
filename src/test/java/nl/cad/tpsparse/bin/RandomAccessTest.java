@@ -36,7 +36,7 @@ public class RandomAccessTest {
         assertEquals(0x0102, new RandomAccess(new byte[] { 0x01, 0x02 }).beShort());
         assertEquals(0x8182, new RandomAccess(new byte[] { (byte) 0x81, (byte) 0x82 }).beShort());
         assertEquals(0x0102, new RandomAccess(new byte[] { 0x02, 0x01 }).leShort());
-        assertEquals(0x8182, new RandomAccess(new byte[] { (byte) 0x82, (byte) 0x81 }).leShort());
+        assertEquals(0xffff8182, new RandomAccess(new byte[] { (byte) 0x82, (byte) 0x81 }).leShort());
     }
 
     @Test

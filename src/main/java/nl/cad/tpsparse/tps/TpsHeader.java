@@ -49,12 +49,12 @@ public class TpsHeader {
         if (addr != 0) {
             throw new NotATopSpeedFileException("File doesn't start with 0x00000000 - its not a TopSpeed file or it may be 'encrypted'.");
         }
-        hdrSize = rx.leShort();
+        hdrSize = rx.leUShort();
         RandomAccess header = rx.read(hdrSize - 6);
         fileLength1 = header.leLong();
         fileLength2 = header.leLong();
         topSpeed = header.fixedLengthString(4);
-        zeros = header.leShort();
+        zeros = header.leUShort();
         lastIssuedRow = header.beLong();
         changes = header.leLong();
         managementPageRef = header.toFileOffset(header.leLong());

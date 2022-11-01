@@ -37,11 +37,11 @@ public class TableDefinitionRecord {
     private Charset stringEncoding;
 
     public TableDefinitionRecord(RandomAccess rx, Charset stringEncoding) {
-        this.driverVersion = rx.leShort();
-        this.recordLength = rx.leShort();
-        this.nrOfFields = rx.leShort();
-        this.nrOfMemos = rx.leShort();
-        this.nrOfIndexes = rx.leShort();
+        this.driverVersion = rx.leUShort();
+        this.recordLength = rx.leUShort();
+        this.nrOfFields = rx.leUShort();
+        this.nrOfMemos = rx.leUShort();
+        this.nrOfIndexes = rx.leUShort();
         //
         this.stringEncoding = stringEncoding;
         //

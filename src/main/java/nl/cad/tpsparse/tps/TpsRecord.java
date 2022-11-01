@@ -58,8 +58,8 @@ public class TpsRecord {
         if ((flags & 0xC0) != 0xC0) {
             throw new IllegalArgumentException("Can't construct a TpsRecord without record lengths (0x" + rx.toHex2(flags) + ")");
         }
-        recordLength = rx.leShort();
-        headerLength = rx.leShort();
+        recordLength = rx.leUShort();
+        headerLength = rx.leUShort();
         data = rx.read(recordLength);
         //
         buildHeader();
@@ -73,12 +73,12 @@ public class TpsRecord {
     public TpsRecord(TpsRecord previous, RandomAccess rx) {
         flags = rx.leByte();
         if ((flags & 0x80) != 0) {
-            recordLength = rx.leShort();
+            recordLength = rx.leUShort();
         } else {
             recordLength = previous.getRecordLength();
         }
         if ((flags & 0x40) != 0) {
-            headerLength = rx.leShort();
+            headerLength = rx.leUShort();
         } else {
             headerLength = previous.getHeaderLength();
         }

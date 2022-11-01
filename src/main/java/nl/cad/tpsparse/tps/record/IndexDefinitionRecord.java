@@ -39,12 +39,12 @@ public class IndexDefinitionRecord {
         }
         name = rx.zeroTerminatedString();
         flags = rx.leByte();
-        fieldsInKey = rx.leShort();
+        fieldsInKey = rx.leUShort();
         keyField = new int[fieldsInKey];
         keyFieldFlag = new int[fieldsInKey];
         for (int t = 0; t < fieldsInKey; t++) {
-            keyField[t] = rx.leShort();
-            keyFieldFlag[t] = rx.leShort();
+            keyField[t] = rx.leUShort();
+            keyFieldFlag[t] = rx.leUShort();
         }
     }
 

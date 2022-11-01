@@ -32,8 +32,8 @@ public class MemoDefinitionRecord {
             }
         }
         name = rx.zeroTerminatedString();
-        length = rx.leShort();
-        flags = rx.leShort();
+        length = rx.leUShort();
+        flags = rx.leUShort();
     }
 
     public String getName() {

@@ -52,11 +52,11 @@ public class TpsPage {
 
     public TpsPage(RandomAccess rx) {
         addr = rx.leLong();
-        pageSize = rx.leShort();
+        pageSize = rx.leUShort();
         RandomAccess header = rx.read(pageSize - 6);
-        pageSizeUncompressed = header.leShort();
-        pageSizeUncompressedWithoutHeader = header.leShort();
-        recordCount = header.leShort();
+        pageSizeUncompressed = header.leUShort();
+        pageSizeUncompressedWithoutHeader = header.leUShort();
+        recordCount = header.leUShort();
         flags = header.leByte();
         //
         compressedData = header.read(pageSize - 13);

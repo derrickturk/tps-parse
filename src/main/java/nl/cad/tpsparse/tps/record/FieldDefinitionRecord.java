@@ -40,12 +40,12 @@ public class FieldDefinitionRecord {
 
     public FieldDefinitionRecord(RandomAccess rx) {
         this.fieldType = rx.leByte();
-        this.offset = rx.leShort();
+        this.offset = rx.leUShort();
         this.fieldName = rx.zeroTerminatedString();
-        this.elements = rx.leShort();
-        this.length = rx.leShort();
-        this.flags = rx.leShort();
-        this.index = rx.leShort();
+        this.elements = rx.leUShort();
+        this.length = rx.leUShort();
+        this.flags = rx.leUShort();
+        this.index = rx.leUShort();
         this.groupFields = null;
         //
         switch (fieldType) {
@@ -56,7 +56,7 @@ public class FieldDefinitionRecord {
         case 0x12:
         case 0x13:
         case 0x14:
-            stringLength = rx.leShort();
+            stringLength = rx.leUShort();
             stringMask = rx.zeroTerminatedString();
             if (stringMask.length() == 0) {
                 rx.leByte();
